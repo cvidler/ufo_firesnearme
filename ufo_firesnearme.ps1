@@ -15,7 +15,7 @@ $radius = 100
 $myLat = -35.2411045
 $myLon = 149.138622
 
-# Dynatrace UFO URL
+# Dynatrace UFO address (IP or FQDN)
 $ufoaddr = "192.168.137.30"
 
 
@@ -70,10 +70,13 @@ $eventsdata = restApiGet($rfseventsurl)
 
 $total = 0
 ForEach ($event in $eventsdata.features) {
+    $coords = ""
+    if ($event.geometry.coordinates.Count -gt 1 ) { $coords = $event.geometry.coordinates } 
+    else { $coords = $event.geometry.geometries[0].coordinates }
 
-    if ($event.geometry.coordinates.Count -gt 1 ) {
+    #$dist = getDist $myLat $myLon $event.geometry.coordinates[1] $event.geometry.coordinates[0]
+    $dist = getDist $myLat $myLon $coords[1] $coords[0] 
 
-    $dist = getDist $myLat $myLon $event.geometry.coordinates[1] $event.geometry.coordinates[0]
     #Write-Host $event.properties.title ($dist/1000)
 
     if ($dist -le ($radius * 1000)) {
@@ -81,7 +84,6 @@ ForEach ($event in $eventsdata.features) {
         Write-Host "***** $($event.properties.title) $($dist/1000) km"
     }
 
-    }
 }
 
 #$total = 4
